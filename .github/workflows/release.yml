@@ -52,5 +52,4 @@ jobs:
       with:
         files: |
           unsplash-mcp-*
-        tag_name: latest
         make_latest: true
