@@ -1,9 +1,7 @@
 package main
 
 import (
-	"context"
-	"log/slog"
-	"os"
+	"net/http"
 
 	"github.com/douglarek/unsplash-mcp-server/pkg/tools"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -21,8 +19,14 @@ func main() {
 		searchTool,
 		tools.HandleSearchPhotos,
 	)
-	if err := server.Run(context.Background(), &mcp.StreamableServerTransport{}); err != nil {
-		slog.Error("Server error", "error", err)
-		os.Exit(1)
-	}
+	handler := mcp.NewStreamableHTTPHandler(
+		func(r *http.Request) *mcp.Server {
+			return server
+		},
+		&mcp.StreamableHTTPOptions{
+			JSONResponse: true,
+			Stateless:    true,
+		},
+	)
+	http.ListenAndServe(":8080", handler)
 }
