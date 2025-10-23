@@ -1,4 +1,4 @@
-package api
+package main
 
 import (
 	"context"
@@ -7,9 +7,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-
-	"github.com/douglarek/unsplash-mcp-server/internal/config"
-	"github.com/douglarek/unsplash-mcp-server/internal/models"
 )
 
 const (
@@ -27,7 +24,7 @@ type Client struct {
 }
 
 // NewClient creates a new Unsplash API client
-func NewClient(cfg *config.Config) *Client {
+func NewClient(cfg *Config) *Client {
 	return &Client{
 		httpClient: &http.Client{
 			Timeout: cfg.RequestTimeout,
@@ -37,7 +34,7 @@ func NewClient(cfg *config.Config) *Client {
 }
 
 // SearchPhotos searches for photos with the given parameters
-func (c *Client) SearchPhotos(ctx context.Context, params url.Values) ([]models.Photo, error) {
+func (c *Client) SearchPhotos(ctx context.Context, params url.Values) ([]Photo, error) {
 	// Create request
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, UnsplashAPIURL, nil)
 	if err != nil {
@@ -58,15 +55,17 @@ func (c *Client) SearchPhotos(ctx context.Context, params url.Values) ([]models.
 
 	// Check status code
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(body))
+		return nil, fmt.Errorf("failed to search photos: %s", resp.Status)
 	}
 
 	// Parse response
-	var searchResp models.SearchResponse
-	if err := json.NewDecoder(resp.Body).Decode(&searchResp); err != nil {
+	var searchResp SearchResponse
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+	if err := json.Unmarshal(body, &searchResp); err != nil {
 		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
-
 	return searchResp.Results, nil
 }

@@ -1,4 +1,4 @@
-package tools
+package main
 
 import (
 	"context"
@@ -6,9 +6,6 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/douglarek/unsplash-mcp-server/internal/api"
-	"github.com/douglarek/unsplash-mcp-server/internal/config"
-	"github.com/douglarek/unsplash-mcp-server/internal/models"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -19,20 +16,20 @@ func NewSearchPhotosTool() *mcp.Tool {
 		"properties": map[string]any{
 			"query": map[string]any{
 				"type":        "string",
-				"description": "搜索关键词（例如：'山峰'、'日落'）",
+				"description": "搜索关键词(例如：'山峰'、'日落')",
 			},
 			"page": map[string]any{
 				"type":        "integer",
 				"minimum":     1,
 				"default":     1,
-				"description": "页码（从 1 开始）",
+				"description": "页码(从 1 开始)",
 			},
 			"per_page": map[string]any{
 				"type":        "integer",
 				"minimum":     1,
 				"maximum":     30,
 				"default":     5,
-				"description": "每页返回的照片数量（最多 30 张）",
+				"description": "每页返回的照片数量(最多 30 张)",
 			},
 			"order_by": map[string]any{
 				"type":        "string",
@@ -42,7 +39,7 @@ func NewSearchPhotosTool() *mcp.Tool {
 			},
 			"color": map[string]any{
 				"type":        "string",
-				"description": "按颜色筛选（例如：'黑色'、'红色'、'蓝色'）",
+				"description": "按颜色筛选(例如：'黑色'、'红色'、'蓝色')",
 			},
 			"orientation": map[string]any{
 				"type":        "string",
@@ -105,13 +102,13 @@ func NewSearchPhotosTool() *mcp.Tool {
 	}
 }
 
-func HandleSearchPhotos(ctx context.Context, req *mcp.CallToolRequest, input models.SearchPhotosRequest) (*mcp.CallToolResult, *models.SearchResult, error) {
-	cfg, err := config.Load()
+func HandleSearchPhotos(ctx context.Context, req *mcp.CallToolRequest, input SearchPhotosRequest) (*mcp.CallToolResult, *SearchResult, error) {
+	cfg, err := Load()
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to load configuration: %v", err)
 	}
 
-	client := api.NewClient(cfg)
+	client := NewClient(cfg)
 	if input.Query == "" {
 		return nil, nil, fmt.Errorf("query arg is required")
 	}
@@ -121,13 +118,13 @@ func HandleSearchPhotos(ctx context.Context, req *mcp.CallToolRequest, input mod
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to search photos: %v", err)
 	}
-	result := models.SearchResult{
+	result := SearchResult{
 		Photos: photos,
 	}
 	return nil, &result, nil
 }
 
-func buildSearchParams(args models.SearchPhotosRequest) url.Values {
+func buildSearchParams(args SearchPhotosRequest) url.Values {
 	params := url.Values{}
 
 	params.Add("query", args.Query)

@@ -1,6 +1,6 @@
-module github.com/douglarek/unsplash-mcp-server
+module github.com/sanbei101/unsplash-mcp-server
 
-go 1.24.1
+go 1.25
 
 require github.com/modelcontextprotocol/go-sdk v1.0.0
 

@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 
-	"github.com/douglarek/unsplash-mcp-server/pkg/tools"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -14,11 +13,11 @@ func main() {
 		Version: "1.0.0",
 	}, nil)
 
-	searchTool := tools.NewSearchPhotosTool()
+	searchTool := NewSearchPhotosTool()
 	mcp.AddTool(
 		server,
 		searchTool,
-		tools.HandleSearchPhotos,
+		HandleSearchPhotos,
 	)
 	// handler := mcp.NewStreamableHTTPHandler(
 	// 	func(r *http.Request) *mcp.Server {
